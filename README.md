@@ -1,5 +1,5 @@
 #C Bin Tools
-bin2c - Convert a binary into a C char array, for embedding into an application.
+bin2c - Convert a binary into a C char array, for embedding into an application.<br />
 c2bin - Convert a C char array back into a binary.
 
 ## Support Me
