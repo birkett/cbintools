@@ -1,6 +1,5 @@
-/Debug
+/bin
+/obj
 /*.opensdf
 /*.sdf
 /*.suo
-/bin2c/Debug
-/c2bin/Debug
