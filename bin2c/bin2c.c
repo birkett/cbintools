@@ -23,19 +23,33 @@
 */
 
 /*
-* Turns bonaries into C char arrays.
+* Turns binaries into C char arrays.
 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef WIN32
+    #include <ctype.h>
+    
+    char *_strupr(char *x)
+    {
+        char *y = x;
+        while(*y)
+        {
+            *y = toupper(*y);
+            y++;
+        }
+        return x;
+    }
+#endif
 
 int main(int argc, char *argv[])
 {
     FILE          *inputFile = NULL;
     FILE          *outputFile = NULL;
     void          *buffer;
-    long          fileLen;
-    unsigned int  i, j, major, minor;
+    unsigned int  fileLen, i, j, major, minor;
     unsigned char *bufptr;
 
     if(argc != 4) {

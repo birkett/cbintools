@@ -31,7 +31,7 @@
 
 #define BUFFER_SIZE 80
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     FILE *inputFile = NULL;
     FILE *outputFile = NULL;
