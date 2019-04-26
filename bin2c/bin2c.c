@@ -29,6 +29,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define H_OUTPUT_FORMAT_STR	"0x%0.2X"
+#define D_OUTPUT_FORMAT_STR "%u"
+
 #ifndef WIN32
     #include <ctype.h>
     
@@ -44,18 +47,33 @@
     }
 #endif
 
+	unsigned char * fprintList(FILE *outputFile, unsigned char *bufptr, unsigned char len, const char* formatStr)
+	{
+		for (unsigned char j = 0; j < len; j++)
+		{
+			fprintf(outputFile, formatStr, *(bufptr++));
+			fprintf(outputFile, ",");
+		}
+		fprintf(outputFile, "\n");
+		return bufptr;
+	}
+
 int main(int argc, char *argv[])
 {
     FILE          *inputFile = NULL;
     FILE          *outputFile = NULL;
     void          *buffer;
-    unsigned int  fileLen, i, j, major, minor;
+    unsigned int  fileLen, i, major, minor;
     unsigned char *bufptr;
+	unsigned char useHex = 0;
 
-    if(argc != 4) {
-        printf("%s %s %s\n", "Usage:", argv[0], "<binary> <destination file> <array name>");
+    if(argc < 4 || argc > 5) {
+        printf("%s %s %s\n", "Usage:", argv[0], "<binary> <destination file> <array name> [options]");
+		printf("%s\n", "options:\n\t-h output numbers in hex format");
         return 1;
     }
+
+	useHex = strstr(argv[4], "-h") != NULL;
 
     inputFile = fopen(argv[1], "rb");
     if(inputFile == NULL)
@@ -96,33 +114,16 @@ int main(int argc, char *argv[])
     minor = fileLen % 16;
 
     bufptr = buffer;
-
+	
     for (i = 0; i < major; i++)
     {
-        fprintf(outputFile, "%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u",
-            bufptr[0], bufptr[1], bufptr[2], bufptr[3], bufptr[4], bufptr[5], bufptr[6], bufptr[7],
-            bufptr[8], bufptr[9], bufptr[10], bufptr[11], bufptr[12], bufptr[13], bufptr[14], bufptr[15]);
-
-        if ((i == major - 1) && !minor)
-        {
-            fprintf(outputFile, "\n");
-        }
-        else {
-            fprintf(outputFile, ",\n");
-        }
-
-        bufptr += 16;
+		bufptr = fprintList(outputFile, bufptr, 16, useHex? H_OUTPUT_FORMAT_STR: D_OUTPUT_FORMAT_STR);
     }
 
     if (minor)
     {
-        for (j = 0; j < minor - 1; j++)
-        {
-            fprintf(outputFile, "%u,", *bufptr++);
-        }
-        fprintf(outputFile, "%u\n", *bufptr);
+		bufptr = fprintList(outputFile, bufptr, minor, useHex? H_OUTPUT_FORMAT_STR : D_OUTPUT_FORMAT_STR);
     }
-
     fprintf(outputFile, "};\n");
     fclose(outputFile);
     free(buffer);
