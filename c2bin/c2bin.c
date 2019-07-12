@@ -43,7 +43,9 @@ int main(int argc, char *argv[])
 
     if (argc != 3)
     {
-        printf("%s %s %s\n", "Usage:", argv[0], "<header> <output>");
+        printf("%s %s %s\n", "Usage:", argv[0], "<source_header_file> <dest_bynary_file>");
+        printf("%s\n", "\t<source_header_file>: Path to the C header file that contains the C char array.");
+        printf("%s\n", "\t<dest_bynary_file>  : Path and name of the binary output file to generate.");
         return 1;
     }
 
