@@ -25,10 +25,17 @@
 <#
  * Test the functionality of bin2c and c2bin
 #>
-function runTest($arch, $binaryPath)
+function runTest($arch, $binaryPath, $options)
 {
-    Write-Host "Generating header from $arch testapp"
-    &$binaryPath\bin2c.exe $binaryPath\testapp.exe $PSScriptRoot\output$arch.h TESTAPP$arch
+    if(Compare-Object $options "-h")
+    {
+        Write-Host "Generating header from $arch testapp using hexadecimal output format"
+    }
+    else 
+    {
+        Write-Host "Generating header from $arch testapp using decimal output format"
+    }
+    &$binaryPath\bin2c.exe $options $binaryPath\testapp.exe $PSScriptRoot\output$arch.h TESTAPP$arch
     Write-Host "Transforming header back into a binary $arch testapp"
     &$binaryPath\c2bin.exe $PSScriptRoot\output$arch.h $PSScriptRoot\testapp.generated.$arch.exe
     Write-Host "Comparing the output of original and generated binaries"
@@ -43,8 +50,12 @@ function runTest($arch, $binaryPath)
         Write-Host "All done. Output was equal."
     }
     Write-Host ""
+    Remove-Item $PSScriptRoot\output$arch.h
+    Remove-Item $PSScriptRoot\testapp.generated.$arch.exe
 }
 
 # Run the tests.
-runTest -arch x86 -binaryPath ($PSScriptRoot + "\..\bin\x86\")
-runTest -arch x64 -binaryPath ($PSScriptRoot + "\..\bin\x64\")
+runTest -arch x86 -binaryPath ($PSScriptRoot + "\..\bin\x86\") -options ""
+runTest -arch x64 -binaryPath ($PSScriptRoot + "\..\bin\x64\") -options ""
+runTest -arch x86 -binaryPath ($PSScriptRoot + "\..\bin\x86\") -options "-h"
+runTest -arch x64 -binaryPath ($PSScriptRoot + "\..\bin\x64\") -options "-h"

@@ -28,8 +28,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
-#define BUFFER_SIZE 80
+#define BUFFER_SIZE 1024
 
 int main(int argc, char *argv[])
 {
@@ -42,7 +43,9 @@ int main(int argc, char *argv[])
 
     if (argc != 3)
     {
-        printf("%s %s %s\n", "Usage:", argv[0], "<header> <output>");
+        printf("%s %s %s\n", "Usage:", argv[0], "<source_header_file> <dest_bynary_file>");
+        printf("%s\n", "\t<source_header_file>: Path to the C header file that contains the C char array.");
+        printf("%s\n", "\t<dest_bynary_file>  : Path and name of the binary output file to generate.");
         return 1;
     }
 
@@ -87,11 +90,23 @@ int main(int argc, char *argv[])
 
         // Write out each character.
         pch = strtok(sBuffer, ",");
-        while (pch != NULL)
-        {
-            // Use atoi() to convert from decimal to a char.
-            fprintf(outputFile, "%c", atoi(pch));
-            //printf("%s\n", pch);
+		while (pch != NULL)
+		{
+			while (*pch && !isdigit(*pch)) pch++; //skip spaces, tabs, \l (or any non-numeric character)
+			if (strlen(pch)) //is not empty
+			{
+				char *found;
+				if ((found = strstr(pch, "0x")) != NULL) // It is a Hex number (begins with 0x)
+				{
+					char *ptr;
+					fprintf(outputFile, "%c", (unsigned char)strtol(&found[2], &ptr, 16)); //skip the 0x and convert
+				}
+				else
+				{
+					// Use atoi() to convert from decimal to a char.
+					fprintf(outputFile, "%c", atoi(pch));
+				}
+			}
             pch = strtok(NULL, ",");
         }
     }
